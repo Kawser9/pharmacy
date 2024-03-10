@@ -30,6 +30,7 @@
 						<thead>
 							<tr>
 								<th>Product Name</th>
+								<th>Self Number</th>
 								<th>Category</th>
 								<th>Price</th>
 								<th>Quantity</th>
@@ -53,6 +54,7 @@
 											{{$product->purchase->name}}
 										</h2>
 									</td>
+									<td>{{$product->self}}</td>
 									<td>{{$product->purchase->category->name}}</td>
 									<td>{{AppSettings::get('app_currency', '$')}} {{$product->price}}
 									</td>

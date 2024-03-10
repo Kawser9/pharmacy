@@ -14,7 +14,7 @@ class Purchase extends Model
     use HasFactory,Notifiable;
 
     protected $fillable =[
-        'name','category_id','price','quantity',
+        'name','category_id','price','quantity','self',
         'image','expiry_date','supplier_id',
     ];
 

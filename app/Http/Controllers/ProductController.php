@@ -78,10 +78,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $this->validate($request,[
             'product'=>'required|max:200',
             'price'=>'required|min:1',
             'discount'=>'nullable',
+            'self'=>'required',
             'description'=>'nullable|max:200',
         ]);
         $price = $request->price;
@@ -93,6 +95,7 @@ class ProductController extends Controller
             'purchase_id'=>$request->product,
             'price'=>$price,
             'discount'=>$request->discount,
+            'self'=>$request->self,
             'description'=>$request->description,
         ]);
         $notification=array(

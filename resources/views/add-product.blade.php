@@ -51,10 +51,17 @@
 							</div>
 						</div>
 
-						<div class="col-lg-6">
+						<div class="col-lg-3">
 							<div class="form-group">
 								<label>Discount (%)<span class="text-danger">*</span></label>
-								<input class="form-control" type="text" name="discount" value="0">
+								<input class="form-control" type="number" name="discount" value="0">
+							</div>
+						</div>
+
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Self Number<span class="text-danger">*</span></label>
+								<input class="form-control" type="number" name="self" value="">
 							</div>
 						</div>
 						

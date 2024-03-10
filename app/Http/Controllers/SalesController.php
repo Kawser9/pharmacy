@@ -70,9 +70,9 @@ class SalesController extends Controller
                 'alert-type'=>'success',
             );
         } 
-        if($new_quantity <=1 && $new_quantity !=0){
+        if($new_quantity < 3 && $new_quantity !=0){
             // send notification 
-            $product = Purchase::where('quantity', '<=', 1)->first();
+            $product = Purchase::where('quantity', '<', 3)->first();
             event(new PurchaseOutStock($product));
             // end of notification 
             $notification = array(
