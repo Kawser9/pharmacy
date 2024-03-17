@@ -29,7 +29,7 @@ class ReportController extends Controller
         if ($request->resource == 'sales'){
             $sales = Sales::whereBetween(DB::raw('DATE(created_at)'), array($from_date, $to_date))->get();
             $total_sales = $sales->count();
-            $total_cash =$sales->sum('total_price');
+            $total_cash =$sales->sum('selling_price');
             $title = "Sales Reports";
             return view('reports',compact('sales','title','total_sales','total_cash'));
         }

@@ -58,10 +58,13 @@ class SalesController extends Controller
             /**
              * calcualting item's total price
             **/
-            $total_price = ($request->quantity) * ($sold_product->price);
+            // $total_price = ($request->quantity) * ($sold_product->price);
+            $total_price = ($sold_product->price);
             Sales::create([
                 'product_id'=>$request->product,
                 'quantity'=>$request->quantity,
+                'selling_price'=>$request->totalPrice,
+                'discount'=>$request->discount.'%',
                 'total_price'=>$total_price,
             ]);
 
@@ -70,7 +73,7 @@ class SalesController extends Controller
                 'alert-type'=>'success',
             );
         } 
-        if($new_quantity < 3 && $new_quantity !=0){
+        if($new_quantity < 3  && $new_quantity !=0){
             // send notification 
             $product = Purchase::where('quantity', '<', 3)->first();
             event(new PurchaseOutStock($product));

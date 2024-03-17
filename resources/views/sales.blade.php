@@ -33,7 +33,9 @@
 							<tr>
 								<th>Medicine Name</th>
 								<th>Quantity</th>
-								<th>Total Price</th>
+								<th>Unit Price</th>
+								<th>Discount(%)</th>
+								<th>Selling Price</th>
 								<th>Date</th>
 								<th class="action-btn">Action</th>
 							</tr>
@@ -44,7 +46,15 @@
 									<tr>
 										<td>{{$sale->product->purchase->name}}</td>
 										<td>{{$sale->quantity}}</td>
-										<td>{{AppSettings::get('app_currency', '$')}} {{($sale->total_price)}}</td>
+										<td>
+											{{-- {{AppSettings::get('app_currency', '$')}} --}}
+											{{($sale->total_price)}}
+										</td>
+										<td>{{$sale->discount}}</td>
+										<td>
+											{{-- {{AppSettings::get('app_currency', '$')}}  --}}
+											{{$sale->selling_price}}
+										</td>
 										<td>{{date_format(date_create($sale->created_at),"d M, Y")}}</td>
 										<td>
 											<div class="actions">
@@ -76,7 +86,7 @@
 <x-modals.delete :route="'sales'" :title="'Product Sale'" />
 <!-- /Delete Modal -->
 <!-- Add Modal -->
-<div class="modal fade" id="add_sales" aria-hidden="true" role="dialog">
+{{-- <div class="modal fade" id="add_sales" aria-hidden="true" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -110,15 +120,88 @@
 								<input type="number" value="1" class="form-control" name="quantity">
 							</div>
 						</div>
+						<div class="col-12">
+							<div class="form-group">
+								<label>Selling Price</label>
+								<input type="number" class="form-control" name="selling_price">
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="form-group">
+								<label>Total Price</label>
+								<input type="number" value="{{$product->price}}" class="form-control">
+							</div>
+						</div>
+						
 					</div>
 					<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
 				</form>
 			</div>
 		</div>
 	</div>
-</div>
+</div> --}}
 <!-- /ADD Modal -->
-
+<div class="modal fade" id="add_sales" aria-hidden="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sell Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ route('sales') }}" id="salesForm">
+                    @csrf
+                    <div class="row form-row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Product <span class="text-danger">*</span></label>
+                                <select class="select2 form-select form-control" name="product" id="productSelect">
+                                    @foreach ($products as $product)
+                                        @if (!empty($product->purchase))
+                                            @if (!($product->purchase->quantity <= 0))
+                                                <option value="{{ $product->id }}" data-price="{{ $product->price }}">
+                                                    {{ $product->purchase->name }}
+                                                </option>
+                                            @endif
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <input type="hidden" name="">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" value="1" class="form-control" name="quantity" id="quantityInput">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Discount (%)</label>
+                                <input type="number" value="0" name="discount" class="form-control" id="discount" >
+                            </div>
+                        </div>
+						<div class="col-6">
+                            <div class="form-group">
+                                <label>Price Per Unit</label>
+								<input type="number" value="{{$product->price}}" class="form-control" id="sellingPriceInput">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Total Price</label>
+                                <input type="number" class="form-control" name="totalPrice" id="totalPrice"  readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sell</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Edit Modal -->
 <div class="modal fade" id="edit_sale" aria-hidden="true" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
@@ -156,6 +239,12 @@
 								<input type="number" class="form-control edit_quantity" name="quantity">
 							</div>
 						</div>
+						<div class="col-12">
+							<div class="form-group">
+								<label>Selling Price</label>
+								<input type="number" class="form-control edit_selling_price" name="selling_price">
+							</div>
+						</div>
 					</div>
 					<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
 				</form>
@@ -182,8 +271,81 @@
 				$('#edit_id').val(id);
 				$('.edit_product').val(product);
 				$('.edit_quantity').val(quantity);
+				$('.selling_price').val(selling_price);
 				
 			});
 		});
 	</script>
+	{{-- <script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const quantityInput = document.getElementById('quantityInput');
+			const sellingPriceInput = document.getElementById('sellingPriceInput');
+			const totalPriceInput = document.getElementById('totalPrice');
+			const productSelect = document.getElementById('productSelect');
+	
+			// Add event listeners to quantity and selling price inputs
+			quantityInput.addEventListener('input', updateTotalPrice);
+			sellingPriceInput.addEventListener('input', updateTotalPrice);
+			productSelect.addEventListener('change', updateSellingPrice);
+	
+			// Initial calculation
+			updateTotalPrice();
+	
+			function updateTotalPrice() {
+				const quantity = parseFloat(quantityInput.value) || 0;
+				const sellingPrice = parseFloat(sellingPriceInput.value) || 0;
+				const totalPrice = quantity * sellingPrice;
+				totalPriceInput.value = totalPrice.toFixed(2);
+			}
+	
+			function updateSellingPrice() {
+				const selectedOption = productSelect.options[productSelect.selectedIndex];
+				const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+				sellingPriceInput.value = price.toFixed(2);
+	
+				// Trigger total price update
+				updateTotalPrice();
+			}
+		});
+	</script> --}}
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const quantityInput = document.getElementById('quantityInput');
+			const sellingPriceInput = document.getElementById('sellingPriceInput');
+			const discountInput = document.getElementById('discount');
+			const totalPriceInput = document.getElementById('totalPrice');
+			const productSelect = document.getElementById('productSelect');
+	
+			// Add event listeners to quantity, selling price, and discount inputs
+			quantityInput.addEventListener('input', updateTotalPrice);
+			sellingPriceInput.addEventListener('input', updateTotalPrice);
+			discountInput.addEventListener('input', updateTotalPrice);
+			productSelect.addEventListener('change', updateSellingPrice);
+	
+			// Initial calculation
+			updateTotalPrice();
+	
+			function updateTotalPrice() {
+				const quantity = parseFloat(quantityInput.value) || 0;
+				const sellingPrice = parseFloat(sellingPriceInput.value) || 0;
+				const discount = parseFloat(discountInput.value) || 0;
+	
+				// Calculate total price after applying discount
+				const discountedPrice = sellingPrice - (sellingPrice * discount / 100);
+				const totalPrice = quantity * discountedPrice;
+	
+				totalPriceInput.value = totalPrice.toFixed(2);
+			}
+	
+			function updateSellingPrice() {
+				const selectedOption = productSelect.options[productSelect.selectedIndex];
+				const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+				sellingPriceInput.value = price.toFixed(2);
+	
+				// Trigger total price update
+				updateTotalPrice();
+			}
+		});
+	</script>
+	
 @endpush

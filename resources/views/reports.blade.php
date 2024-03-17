@@ -77,6 +77,8 @@
 								<tr>
 									<th>Medicine Name</th>
 									<th>Quantity</th>
+									<th>Unit Price</th>
+									<th>Discount(%)</th>
 									<th>Total Price</th>
 									<th>Date</th>
 								</tr>
@@ -87,7 +89,11 @@
 										<tr>
 											<td>{{$sale->product->purchase->name}}</td>
 											<td>{{$sale->quantity}}</td>
-											<td>{{AppSettings::get('app_currency', '$')}} {{($sale->total_price)}}</td>
+											<td>{{$sale->total_price}}</td>
+											<td>{{$sale->discount}}</td>
+											<td>
+												{{-- {{AppSettings::get('app_currency', '$')}} --}}
+												 {{($sale->selling_price)}}</td>
 											<td>{{date_format(date_create($sale->created_at),"d M, Y")}}</td>
 											
 										</tr>

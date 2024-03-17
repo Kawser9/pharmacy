@@ -124,7 +124,7 @@
 											<td>{{$sale->product->purchase->name}}</td>
 											<td>{{$sale->quantity}}</td>
 											<td>
-												{{AppSettings::get('app_currency', '$')}} {{($sale->total_price)}}
+												{{AppSettings::get('app_currency', '$')}} {{($sale->selling_price)}}
 											</td>
 											<td>{{date_format(date_create($sale->created_at),"d M, Y")}}</td>
 											
